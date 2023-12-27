@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,14 @@ public class ResultService {
 
         Integer receivedPoints = quiz.getQuestions().stream().map(question -> {
             if (question.getType().equals(QuestionType.MULTIPLE_CHOICE)) {
-                QuestionAnswer multipleAnswers = answers.stream().filter(questionAnswer -> questionAnswer.getQuestionId().equals(question.getId())).findFirst().orElseThrow();
+                Optional<QuestionAnswer> multipleAnswersOptional = answers.stream().filter(questionAnswer -> questionAnswer.getQuestionId().equals(question.getId())).findFirst();
+
+                if (multipleAnswersOptional.isEmpty()) {
+                    return 0;
+                }
+
+                QuestionAnswer multipleAnswers = multipleAnswersOptional.get();
+
                 List<String> chosenAnswers = multipleAnswers.getChosenMultipleAnswers().stream().sorted().toList();
                 List<String> correctAnswers = question.getMultipleChoiceAnswer().getCorrect().stream().sorted().toList();
 
@@ -43,7 +51,13 @@ public class ResultService {
                 }
             }
             if (question.getType().equals(QuestionType.MATCH)) {
-                QuestionAnswer matchAnswer = answers.stream().filter(questionAnswer -> questionAnswer.getQuestionId().equals(question.getId())).findFirst().orElseThrow();
+                Optional<QuestionAnswer> matchAnswerOptional = answers.stream().filter(questionAnswer -> questionAnswer.getQuestionId().equals(question.getId())).findFirst();
+
+                if (matchAnswerOptional.isEmpty()) {
+                    return 0;
+                }
+                QuestionAnswer matchAnswer = matchAnswerOptional.get();
+
                 List<QuestionAndAnswer> chosenAnswers = matchAnswer.getQuestionAndAnswer();
                 List<QuestionAndAnswer> correctAnswers = question.getMatches().stream().map(matches -> new QuestionAndAnswer(matches.getQuestion(), matches.getAnswer())).toList();
 
@@ -52,7 +66,14 @@ public class ResultService {
                 }
             }
             if (question.getType().equals(QuestionType.FINISH_SENTENCE)) {
-                QuestionAnswer matchAnswer = answers.stream().filter(questionAnswer -> questionAnswer.getQuestionId().equals(question.getId())).findFirst().orElseThrow();
+                Optional<QuestionAnswer> matchAnswerOptional = answers.stream().filter(questionAnswer -> questionAnswer.getQuestionId().equals(question.getId())).findFirst();
+
+                if (matchAnswerOptional.isEmpty()) {
+                    return 0;
+                }
+
+                QuestionAnswer matchAnswer = matchAnswerOptional.get();
+
                 List<QuestionAndAnswer> chosenAnswers = matchAnswer.getQuestionAndAnswer();
                 List<QuestionAndAnswer> correctAnswers = question.getSentences().stream().map(matches -> new QuestionAndAnswer(matches.getQuestion(), matches.getAnswer())).toList();
 
